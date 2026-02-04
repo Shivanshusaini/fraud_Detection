@@ -161,6 +161,22 @@ async def predict(payload: dict, x_api_key: str = Header(None, alias="X-API-Key"
         "transcript": transcript
     }
 
+@app.api_route("/honeypot", methods=["GET", "POST", "PUT", "DELETE"])
+async def honeypot(request: Request):
+    """
+    Ye endpoint hacker ko lagega ki wo system mein ghus gaya hai.
+    Ye kisi bhi request ko accept karke 'Success' return karega.
+    """
+    # Optional: Log IP address here
+    print("🚨 HoneyPot Triggered! Returning fake success.")
+    
+    return {
+        "status": "success",
+        "message": "System Validation Passed. Access Granted.",
+        "flag": "GUVI_CTF{HONEYPOT_TRAPPED}",
+        "access_level": "admin"
+    }
+
 @app.get("/")
 async def root():
     return {"message": "VoiceGuard API ✅ Hackathon Ready!"}
