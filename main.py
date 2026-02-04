@@ -111,32 +111,41 @@ from model import predict_text
 app = FastAPI(title="VoiceGuard API", version="1.0")
 
 API_KEY = "guvi123"
-
 @app.post("/predict")
 async def predict(payload: dict, x_api_key: str = Header(None, alias="X-API-Key")):
     # 🔑 Hackathon tester auth
     if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Invalid X-API-Key: guvi123")
 
-    # 📱 Mobile tester format
-    audio_base64 = payload.get("audio")
+    # --- DEBUGGING START ---
+    # This will print the actual keys received in your terminal/console
+    print(f"🔍 RECEIVED PAYLOAD KEYS: {list(payload.keys())}") 
+    # --- DEBUGGING END ---
+
+    # 📱 Mobile tester format - Check for multiple possible key names
+    # The frontend is likely sending "audio_base64" or "AudioBase64Format"
+    audio_base64 = payload.get("audio") or payload.get("audio_base64") or payload.get("audioBase64")
     
     if not audio_base64:
-        raise HTTPException(status_code=400, detail="audio (base64) required")
+        # If still missing, we raise the error but now we know what keys we have from the print above
+        raise HTTPException(status_code=400, detail=f"audio key missing. Received keys: {list(payload.keys())}")
 
     try:
         # Decode base64 audio (tester validation)
+        # Handle cases where the string might have a header like "data:audio/mp3;base64,"
+        if "," in audio_base64:
+            audio_base64 = audio_base64.split(",")[1]
+            
         audio_bytes = base64.b64decode(audio_base64)
         print(f"✅ Audio received: {len(audio_bytes)} bytes")
     except Exception as e:
+        print(f"❌ Base64 Error: {str(e)}")
         raise HTTPException(status_code=400, detail="Invalid base64 audio format")
 
     # 🎤 SIMPLE SPEECH-TO-TEXT SIMULATION
-    # Real me Whisper use kar sakte ho, abhi demo ke liye
     spam_keywords = ['bank', 'otp', 'account', 'blocked', 'urgent', 'verify']
     dummy_transcript = "your bank account is blocked please share otp"
     
-    # Fake transcript generation (hackathon ke liye perfect)
     if any(keyword in dummy_transcript.lower() for keyword in spam_keywords):
         transcript = dummy_transcript
     else:
