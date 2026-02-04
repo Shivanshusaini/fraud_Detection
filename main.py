@@ -103,7 +103,7 @@
 #     }
 
 # main.py - HACKATHON TESTER 100% COMPATIBLE ✅
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Request
 import base64
 import json
 from model import predict_text
@@ -176,7 +176,7 @@ async def honeypot(request: Request):
         "flag": "GUVI_CTF{HONEYPOT_TRAPPED}",
         "access_level": "admin"
     }
-
+    
 @app.get("/")
 async def root():
     return {"message": "VoiceGuard API ✅ Hackathon Ready!"}
